@@ -1,22 +1,20 @@
 from urllib.request import urlopen
-from link_finder import LinkFinder 
+from link_finder import LinkFinder
 from lib import *
 
-class Spider: 
 
-    #Class variable (shared among all instances)
+class Spider:
     project_name = "hongrun"
     base_url = "https://www.shbs.org.cn/"
-    domain_name = "https://www.shbs.org.cn/"
+    domain_name = get_domain_name(base_url)
     queue_file = "/queue.txt"
     crawled_file = "/crawled.txt"
     queue = set()
     crawled = set()
 
-    def __init__(self, project_name, base_url, domain_name):
-        Spider.project_name = project_name  
-        Spider.base_url  =  base_url
-        Spider.domain_name = domain_name
+    def __init__(self, project_name, base_url):
+        Spider.project_name = project_name
+        Spider.base_url = base_url
         Spider.queue_file = Spider.project_name + "/queue.txt"
         Spider.crawled_file = Spider.project_name + "/crawled.txt"
         self.boot()
@@ -28,32 +26,33 @@ class Spider:
         create_data_files(Spider.project_name, Spider.base_url)
         Spider.queue = file_to_set(Spider.queue_file)
         Spider.crawled = file_to_set(Spider.crawled_file)
-    
+
     @staticmethod
     def crawl_page(thread_name, page_url):
-        if page_url not in Spider.crawled:
-            print(thread_name + "is crawling" + page_url) # report system telling you which page is which spider currently crawling
+        if page_url:
+            if page_url not in Spider.crawled:
+                print(thread_name + " is crawling " + page_url)
 
     @staticmethod
     def gather_links(page_url):
-        html_string = ""# This is because when connecting with an website, in python it returns BINARIES!
+        html_string = ""
         try:
-            response = urlopen(page_url) # make connection with a url, 
-            if response.getheader("Content-Type") == "text/html": # to make sure the links crawled can be directly used in a new website, we have to separate those like executable files or pdf than cannot be parsed
+            response = urlopen(page_url)
+            if response.getheader("Content-Type") == "text/html":
                 html_bytes = response.read()
-                html_string = html_bytes.decode("utf-8") #decode the bytes to "utf-8"(huamn readable)
-            finder = LinkFinder(Spider.base_url, page_url)
-            finder.feed(html_string)
+                html_string = html_bytes.decode("utf-8")
+                finder = LinkFinder(Spider.base_url, page_url)
+                finder.feed(html_string)
         except:
-            print("Error: can not crawl page")
-            return set() 
-        return finder.page_links() 
+            print("Error: cannot crawl page")
+            return set()
+        return finder.page_links()
 
     @staticmethod
     def add_links_to_queue(links):
-        for url in links:  
+        for url in links:
             if url in Spider.queue:
-                continue 
+                continue
             if url in Spider.crawled:
                 continue
             if Spider.domain_name not in url:
@@ -64,4 +63,3 @@ class Spider:
     def update_files():
         set_to_file(Spider.queue, Spider.queue_file)
         set_to_file(Spider.crawled, Spider.crawled_file)
-    
