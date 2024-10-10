@@ -1,7 +1,11 @@
-import threading 
+import threading
 from queue import Queue
 from spider import Spider
 from lib import *
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
 
 PROJECT_NAME = "hongrun"
 HOMEPAGE = "https://www.shbs.org.cn/"
@@ -23,19 +27,24 @@ def work():
         queue.task_done()
 
 def create_jobs():
-    for link in file_to_set(QUEUE_FILE):
-        queue.put(link)
-    queue.join()
-    crawl()
+    try:
+        for link in file_to_set(QUEUE_FILE):
+            queue.put(link)
+        queue.join()
+        crawl()
+    except Exception as e:
+        logging.error("An error occurred while creating jobs: %s", str(e))
 
 def crawl():
     queue_links = file_to_set(QUEUE_FILE)
     if queue_links is not None:
         if len(queue_links) > 0:
-            print(str(len(queue_links)) + " links are waiting to be crawled")
+            logging.info("%d links are waiting to be crawled", len(queue_links))
             create_jobs()
+        else:
+            logging.info("No links to crawl. Exiting...")
     else:
-        print("Error: Unable to read queue file or file is empty")
+        logging.error("Error: Unable to read queue file or file is empty")
 
 create_workers()
 crawl()

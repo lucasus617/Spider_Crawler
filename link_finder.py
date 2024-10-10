@@ -1,5 +1,5 @@
 from html.parser import HTMLParser
-from urllib import parse 
+from urllib import parse
 
 class LinkFinder(HTMLParser):
 
@@ -12,11 +12,9 @@ class LinkFinder(HTMLParser):
     def handle_starttag(self, tag, attrs):
         if tag == "a":
             for (attribute, value) in attrs:
-                if attribute == "href": #when detected that the tag is href
-                    url = parse.urljoin(self.base_url, value)# prevent the situation when there is a partial url (it can merge the base url and the partial url together without overlapping)
-                    self.links.add(url)# add the url to the set for better searching
-    def error(self, message):# let the parent class know what it should do if there is any error
-        pass
-        
+                if attribute == "href":  # When detecting href tags
+                    url = parse.urljoin(self.base_url, value)  # Merge base URL
+                    self.links.add(url)  # Add to the set
 
-    
+    def error(self, message):  # Handle errors gracefully
+        pass
