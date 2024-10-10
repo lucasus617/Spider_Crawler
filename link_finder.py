@@ -12,9 +12,12 @@ class LinkFinder(HTMLParser):
     def handle_starttag(self, tag, attrs):
         if tag == "a":
             for (attribute, value) in attrs:
-                if attribute == "href":  # When detecting href tags
-                    url = parse.urljoin(self.base_url, value)  # Merge base URL
-                    self.links.add(url)  # Add to the set
+                if attribute == "href":  # When detected that the tag is href
+                    url = parse.urljoin(self.base_url, value)  # Prevent partial URL issues
+                    self.links.add(url)  # Add the url to the set
 
     def error(self, message):  # Handle errors gracefully
         pass
+
+    def page_links(self):
+        return self.links  # Add the method that returns found links
