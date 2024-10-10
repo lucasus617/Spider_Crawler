@@ -30,17 +30,23 @@ def append_to_file(path,data):
         file.write(data+ "/n")
 
 #delete data by creating a new file to override
+# Delete data by creating a new file to override
 def delete_file_contents(path):
-    with open(path, "w"):
-        pass 
+    with open(path, "w") as file:  # Open the file in write mode to clear its contents
+        pass  # Pass does nothing; this effectively empties the file
 
 #file to set in order to run the program faster with varariables
 def file_to_set(file_name):
-    results = set()
-    with open(file_name, "rt") as f: #open the file and read the text of it
-        for line in f:
-            results.add(line.replace("/n","")) #because links in files are one per line, so "n/" need to be deleted 
-
+    result = set()
+    try:
+        with open(file_name, 'r') as file:
+            for line in file:
+                result.add(line.strip())
+    except FileNotFoundError:
+        print("Error: File not found")
+    except Exception as e:
+        print("Error reading file:", str(e))
+    return result
 #set to file in order to save your data whenever you need to tempertarily close your crawler
 def set_to_file(links, file): # links represents set, file represents file
     delete_file_contenets(file) #in case any remain data
