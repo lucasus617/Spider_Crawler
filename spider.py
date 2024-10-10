@@ -3,6 +3,7 @@ from link_finder import LinkFinder
 from lib import *
 import os
 
+
 class Spider:
     project_name = "hongrun"
     base_url = "https://www.shbs.org.cn/"
@@ -18,7 +19,7 @@ class Spider:
         Spider.base_url = base_url
         Spider.queue_file = f"{Spider.project_name}/queue.txt"
         Spider.crawled_file = f"{Spider.project_name}/crawled.txt"
-        Spider.output_dir = create_output_dir(Spider.project_name)  # Create Output directory
+        Spider.output_dir = self.create_output_dir(Spider.project_name)  # Create Output directory
         self.boot()
         self.crawl_page("First spider", Spider.base_url)
 
@@ -31,7 +32,7 @@ class Spider:
 
     @staticmethod
     def create_output_dir(project_name):
-        output_dir = f"{project_name}/Output"
+        output_dir = os.path.join(project_name, "Output")
         if not os.path.exists(output_dir):
             print("Creating Output directory: " + output_dir)
             os.makedirs(output_dir)
@@ -70,10 +71,12 @@ class Spider:
         # Create a safe filename from the URL
         safe_filename = page_url.replace("https://", "").replace("http://", "").replace("/", "_") + ".txt"
         file_path = os.path.join(Spider.output_dir, safe_filename)
+
+        print(f"Attempting to save content to {file_path}")  # Log the saving attempt
         try:
             with open(file_path, 'w', encoding='utf-8') as file:
                 file.write(content)
-            print(f"Content saved to {file_path}")  # Log successful save
+            print(f"Content successfully saved to {file_path}")  # Log successful save
         except Exception as e:
             print(f"Error saving content for {page_url} - {str(e)}")
 
